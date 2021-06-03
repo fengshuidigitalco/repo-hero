@@ -10,6 +10,7 @@ import {
   Typography,
 } from '@material-ui/core';
 import { useForm, Controller } from 'react-hook-form';
+import { fetcher } from '../../api';
 
 const useStyles = makeStyles({
   formContainer: {
@@ -26,9 +27,18 @@ const useStyles = makeStyles({
 export default function Search({}) {
   const { formContainer, header } = useStyles();
   const { control, handleSubmit } = useForm();
+  const [isLoading, setIsLoading] = useState(false);
 
-  const onSubmit = (data) => {
+  const onSubmit = async (data) => {
     console.log('**data', data);
+    const { search, sort, order } = data;
+    // const queryString =
+    //   'q=' + encodeURIComponent(`${search} sort:${sort} order:${order}`);
+    const queryString = `q=${search}&sort=${sort}&order=${order}`;
+
+    const url = `/search/repositories?q=${queryString}`;
+    const res = await fetcher({ url });
+    console.log('**res', res);
   };
 
   return (
@@ -77,7 +87,12 @@ export default function Search({}) {
             </FormControl>
           )}
         />
-        <Button variant="contained" color="primary" type="submit">
+        <Button
+          variant="contained"
+          color="primary"
+          type="submit"
+          disabled={isLoading}
+        >
           Query
         </Button>
       </form>
