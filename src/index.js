@@ -11,12 +11,12 @@ import reportWebVitals from './reportWebVitals';
 
 ReactDOM.render(
   <React.StrictMode>
-    {/* <ThemeProvider theme={theme}> */}
     <BrowserRouter>
-      <SearchContextProvider>
-        <App />
-      </SearchContextProvider>
-      {/* </ThemeProvider> */}
+      <ThemeProvider theme={theme}>
+        <SearchContextProvider>
+          <App />
+        </SearchContextProvider>
+      </ThemeProvider>
     </BrowserRouter>
   </React.StrictMode>,
   document.getElementById('root')

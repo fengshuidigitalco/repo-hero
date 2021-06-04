@@ -1,22 +1,15 @@
-import React, { useState } from 'react';
-import {
-  Button,
-  FormControl,
-  InputLabel,
-  makeStyles,
-  MenuItem,
-  Select,
-  TextField,
-  Typography,
-} from '@material-ui/core';
-import { useForm, Controller } from 'react-hook-form';
-import { fetcher } from '../../api';
+import React from 'react';
+import { makeStyles, Typography } from '@material-ui/core';
+import SearchBar from './SearchBar';
+import { Results } from './Results';
 
 const useStyles = makeStyles({
-  formContainer: {
+  container: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
+    flexDirection: 'column',
+    padding: '1em',
   },
   header: {
     marginTop: '1em',
@@ -25,77 +18,15 @@ const useStyles = makeStyles({
 });
 
 export default function Search({}) {
-  const { formContainer, header } = useStyles();
-  const { control, handleSubmit } = useForm();
-  const [isLoading, setIsLoading] = useState(false);
-
-  const onSubmit = async (data) => {
-    console.log('**data', data);
-    const { search, sort, order } = data;
-    // const queryString =
-    //   'q=' + encodeURIComponent(`${search} sort:${sort} order:${order}`);
-    const queryString = `q=${search}&sort=${sort}&order=${order}`;
-
-    const url = `/search/repositories?q=${queryString}`;
-    const res = await fetcher({ url });
-    console.log('**res', res);
-  };
+  const { container, header } = useStyles();
 
   return (
-    <div>
-      <Typography variant="h1" component="h2" gutterBottom className={header}>
+    <div className={container}>
+      <Typography variant="h3" component="h2" gutterBottom className={header}>
         Repo Hero
       </Typography>
-      <form onSubmit={handleSubmit(onSubmit)} className={formContainer}>
-        <Controller
-          name="search"
-          control={control}
-          defaultValue=""
-          render={({ field }) => (
-            <TextField
-              id="standard-basic"
-              label="Search Repositories"
-              {...field}
-            />
-          )}
-        />
-        <Controller
-          name="sort"
-          control={control}
-          defaultValue="best match"
-          render={({ field }) => (
-            <FormControl>
-              <InputLabel id="search-sort">Sort</InputLabel>
-              <Select {...field}>
-                <MenuItem value="best match">Best Match</MenuItem>
-                <MenuItem value="stars">Stars</MenuItem>
-              </Select>
-            </FormControl>
-          )}
-        />
-        <Controller
-          name="order"
-          control={control}
-          defaultValue="desc"
-          render={({ field }) => (
-            <FormControl>
-              <InputLabel id="search-sort-order">Sort Order</InputLabel>
-              <Select {...field}>
-                <MenuItem value="desc">Descending</MenuItem>
-                <MenuItem value="asc">Ascending</MenuItem>
-              </Select>
-            </FormControl>
-          )}
-        />
-        <Button
-          variant="contained"
-          color="primary"
-          type="submit"
-          disabled={isLoading}
-        >
-          Query
-        </Button>
-      </form>
+      <SearchBar />
+      <Results />
     </div>
   );
 }
