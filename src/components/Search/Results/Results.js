@@ -16,7 +16,7 @@ const useStyles = makeStyles({
   },
 });
 
-export default function Results({}) {
+export default function Results() {
   const { repositories, isLoading } = useSearchContext();
 
   const { container } = useStyles();

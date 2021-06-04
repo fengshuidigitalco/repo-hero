@@ -96,7 +96,6 @@ export default function Result({ repository, index }) {
     watchers,
     stargazers_count,
     forks,
-    git_url,
     open_issues,
   } = repository;
 
@@ -127,16 +126,16 @@ export default function Result({ repository, index }) {
         </Typography>
       </CardContent>
       <div className={classes.badges}>
-        <Badge badgeContent={stargazers_count} color="secondary">
+        <Badge badgeContent={stargazers_count} color="secondary" max={10000}>
           <StarIcon color="primary" />
         </Badge>
-        <Badge badgeContent={watchers} color="secondary">
+        <Badge badgeContent={watchers} color="secondary" max={10000}>
           <VisibilityIcon color="primary" />
         </Badge>
-        <Badge badgeContent={open_issues} color="secondary">
+        <Badge badgeContent={open_issues} color="secondary" max={10000}>
           <ErrorIcon color="primary" />
         </Badge>
-        <Badge badgeContent={forks} color="secondary">
+        <Badge badgeContent={forks} color="secondary" max={10000}>
           <SvgIcon viewBox="0 0 34 34" color="primary">
             <path
               d="M27.131,8.383c0-2.092-1.701-3.794-3.794-3.794s-3.793,1.702-3.793,3.794c0,0.99,0.39,1.885,1.013,2.561

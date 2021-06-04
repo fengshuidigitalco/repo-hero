@@ -17,7 +17,7 @@ const useStyles = makeStyles({
   },
 });
 
-export default function Search({}) {
+export default function Search() {
   const { container, header } = useStyles();
 
   return (

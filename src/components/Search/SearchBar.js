@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
-  Button,
   FormControl,
   InputLabel,
   makeStyles,
@@ -8,8 +7,8 @@ import {
   Select,
   TextField,
 } from '@material-ui/core';
-import { useForm, Controller } from 'react-hook-form';
 import { fetcher } from '../../api';
+import { useDebounce } from '../../hooks';
 import { useSearchContext } from './SearchContext';
 
 const useStyles = makeStyles({
@@ -28,10 +27,32 @@ const useStyles = makeStyles({
   },
 });
 
-export default function SearchBar({}) {
-  const { setRepositories, setIsLoading, isLoading } = useSearchContext();
+export default function SearchBar() {
+  const [searchString, setSearchString] = useState('');
+  const [sort, setSort] = useState('');
+  const [order, setOrder] = useState('');
+
+  const { setRepositories, setIsLoading } = useSearchContext();
   const { formContainer, search } = useStyles();
-  const { control, handleSubmit } = useForm();
+  const debouncedSearchTerm = useDebounce(searchString, 500);
+
+  const getRepositories = useCallback(
+    async (searchTerm) => {
+      setIsLoading(true);
+      const queryString = `q=${searchTerm}&sort=${sort}&order=${order}`;
+
+      const url = `/search/repositories?q=${queryString}`;
+      const res = await fetcher({ url });
+
+      setRepositories(res.items);
+      setIsLoading(false);
+    },
+    [order, sort, setRepositories, setIsLoading]
+  );
+
+  useEffect(() => {
+    getRepositories(debouncedSearchTerm);
+  }, [debouncedSearchTerm, getRepositories]);
 
   const onSubmit = async (data) => {
     const { search, sort, order } = data;
@@ -48,56 +69,38 @@ export default function SearchBar({}) {
 
   return (
     <div>
-      <form onSubmit={handleSubmit(onSubmit)} className={formContainer}>
-        <Controller
-          name="search"
-          control={control}
-          defaultValue=""
-          render={({ field }) => (
-            <TextField
-              id="standard-basic"
-              label="Search Repositories"
-              {...field}
-              className={search}
-            />
-          )}
+      <form onSubmit={onSubmit} className={formContainer}>
+        <TextField
+          id="standard-basic"
+          label="Search Repositories"
+          className={search}
+          value={searchString}
+          onChange={(e) => setSearchString(e.target.value)}
         />
-        <Controller
-          name="sort"
-          control={control}
-          defaultValue="best match"
-          render={({ field }) => (
-            <FormControl>
-              <InputLabel id="search-sort">Sort</InputLabel>
-              <Select {...field}>
-                <MenuItem value="best match">Best Match</MenuItem>
-                <MenuItem value="stars">Stars</MenuItem>
-              </Select>
-            </FormControl>
-          )}
-        />
-        <Controller
-          name="order"
-          control={control}
-          defaultValue="desc"
-          render={({ field }) => (
-            <FormControl>
-              <InputLabel id="search-sort-order">Sort Order</InputLabel>
-              <Select {...field}>
-                <MenuItem value="desc">Descending</MenuItem>
-                <MenuItem value="asc">Ascending</MenuItem>
-              </Select>
-            </FormControl>
-          )}
-        />
-        <Button
+        <FormControl>
+          <InputLabel id="search-sort">Sort</InputLabel>
+          <Select value={sort} onChange={(e) => setSort(e.target.value)}>
+            <MenuItem value="best match">Best Match</MenuItem>
+            <MenuItem value="stars">Stars</MenuItem>
+          </Select>
+        </FormControl>
+
+        <FormControl>
+          <InputLabel id="search-sort-order">Sort Order</InputLabel>
+          <Select value={order} onChange={(e) => setOrder(e.target.value)}>
+            <MenuItem value="desc">Descending</MenuItem>
+            <MenuItem value="asc">Ascending</MenuItem>
+          </Select>
+        </FormControl>
+
+        {/* <Button
           variant="contained"
           color="primary"
           type="submit"
           disabled={isLoading}
         >
           Query
-        </Button>
+        </Button> */}
       </form>
     </div>
   );
