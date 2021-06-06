@@ -17,7 +17,10 @@ import { useSearchContext } from './SearchContext';
 
 const useStyles = makeStyles((theme) =>
   createStyles({
-    container: { width: '100%' },
+    container: {
+      paddingBottom: '1em',
+      width: '100%',
+    },
     row: {
       ...theme.flexContainer.row,
       flexWrap: 'wrap',
@@ -94,8 +97,8 @@ export default function SearchBar({ id }) {
   } = useStyles();
 
   const { language, term, sort, order } = search;
-  const debouncedSearchTerm = useDebounce(term, 1000);
-  const debouncedLangauge = useDebounce(language, 1000);
+  const debouncedSearchTerm = useDebounce(term, 500);
+  const debouncedLangauge = useDebounce(language, 500);
 
   const getRepositories = useCallback(
     async (searchTerm, sort, order, language) => {

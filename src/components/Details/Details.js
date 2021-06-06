@@ -1,10 +1,6 @@
 import React from 'react';
 import {
-  Avatar,
   Badge,
-  Card,
-  CardContent,
-  CardHeader,
   createStyles,
   makeStyles,
   SvgIcon,
@@ -13,36 +9,36 @@ import {
 import StarIcon from '@material-ui/icons/Star';
 import VisibilityIcon from '@material-ui/icons/Visibility';
 import ErrorIcon from '@material-ui/icons/Error';
-import { blue } from '@material-ui/core/colors';
 import { useSearchContext } from '../Search/SearchContext';
+import { Card } from '../Card';
 
 const useStyles = makeStyles((theme) =>
   createStyles({
-    avatar: {
-      backgroundColor: (props) => blue[props.colorNumber],
-    },
-    badges: {
-      ...theme.flexContainer.row,
-      justifyContent: 'space-around',
-    },
-    cardHeader: {
-      fontSize: '20px',
-      fontWeight: 700,
+    cardClass: {
+      cursor: 'default',
+      margin: '2em auto',
+      maxWidth: '90%',
+      [theme.breakpoints.up('md')]: {
+        margin: '2em auto',
+        width: '80%',
+      },
+      [theme.breakpoints.up('lg')]: {
+        maxWidth: '80%',
+      },
     },
     content: {
-      height: 110,
-      overflow: 'hidden',
-      paddingBottom: '40px',
-      textOverflow: 'ellipsis',
+      height: 'auto',
     },
-    formContainer: {
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
+    description: {
+      fontSize: 14,
+      marginBottom: '1em',
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
     },
     header: {
       fontSize: '20px',
       margin: 'auto',
+      paddingTop: '2em',
       textAlign: 'center',
       [theme.breakpoints.up('sm')]: {
         fontSize: '25px',
@@ -51,46 +47,24 @@ const useStyles = makeStyles((theme) =>
         fontSize: '48px',
       },
     },
-    root: {
-      cursor: 'pointer',
-      marginBottom: '1em',
-      minWidth: 275,
-      paddingBottom: '1em',
-      maxWidth: '90vw',
-      width: '100%',
-      '& *': {
-        transition: 'transform 150ms ease',
-      },
-      '&:active, &:active *': {
-        transform: 'scale(0.96)',
-      },
-      [theme.breakpoints.up('md')]: {
-        margin: '1em',
-      },
-      [theme.breakpoints.up('lg')]: {
-        maxWidth: 300,
-      },
-      '&:hover': {
-        borderColor: theme.palette.primary.main,
-      },
+    link: {
+      textDecoration: 'underline',
     },
-    description: {
-      fontSize: 14,
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
+    row: {
+      ...theme.flexContainer.row,
+      flexWrap: 'wrap',
+      marginTop: '2em',
+      width: '100%',
+      justifyContent: 'space-evenly',
+      [theme.breakpoints.up('md')]: {
+        justifyContent: 'flex-start',
+      },
     },
   })
 );
 
-const determineColorNumber = (number) => {
-  const stringNumber = `${number}`;
-  const finalDigit = stringNumber.split('').pop();
-  return parseInt(`${finalDigit}00`);
-};
-
 export default function Details({ repository, index }) {
-  const props = { colorNumber: determineColorNumber(index) };
-  const classes = useStyles(props);
+  const classes = useStyles();
   const { selectedRepository } = useSearchContext();
 
   if (!selectedRepository) {
@@ -101,7 +75,7 @@ export default function Details({ repository, index }) {
         gutterBottom
         className={classes.header}
       >
-        Repository not found.{' '}
+        Repository not found.
       </Typography>
     );
   }
@@ -113,45 +87,59 @@ export default function Details({ repository, index }) {
     watchers,
     stargazers_count,
     forks,
-    git_url,
+    html_url,
     open_issues,
+    score,
+    license,
   } = selectedRepository;
-  console.log('**repo', selectedRepository);
+  const key = license?.key || null;
+
   return (
-    <Card className={classes.root} variant="outlined">
-      <CardHeader
-        avatar={
-          <Avatar aria-label="recipe" className={classes.avatar}>
-            {name.charAt(0)}
-          </Avatar>
-        }
-        title={name}
-        subheader={language}
-        classes={{ title: classes.cardHeader }}
-      />
-      <CardContent className={classes.content}>
-        <Typography
-          className={classes.description}
-          color="textSecondary"
-          gutterBottom
-        >
-          {description}
-        </Typography>
-      </CardContent>
-      <div className={classes.badges}>
-        <Badge badgeContent={stargazers_count} color="secondary" max={9999}>
-          <StarIcon color="primary" />
-        </Badge>
-        <Badge badgeContent={watchers} color="secondary" max={9999}>
-          <VisibilityIcon color="primary" />
-        </Badge>
-        <Badge badgeContent={open_issues} color="secondary" max={9999}>
-          <ErrorIcon color="primary" />
-        </Badge>
-        <Badge badgeContent={forks} color="secondary" max={9999}>
-          <SvgIcon viewBox="0 0 34 34" color="primary">
-            <path
-              d="M27.131,8.383c0-2.092-1.701-3.794-3.794-3.794s-3.793,1.702-3.793,3.794c0,0.99,0.39,1.885,1.013,2.561
+    <Card
+      classOverrides={{ root: classes.cardClass }}
+      title={name}
+      color={500}
+      contentClassName={classes.content}
+      subHeader={language}
+      content={
+        <>
+          <Typography
+            className={classes.description}
+            color="textSecondary"
+            gutterBottom
+          >
+            {description}
+          </Typography>
+          <a href={html_url} target="_blank" rel="noreferrer">
+            <span className={classes.link}>View On Github</span>
+          </a>
+          <div className={classes.row}>
+            {key && (
+              <span>
+                License: <span>{key}</span>
+              </span>
+            )}
+            <span>
+              score: <span>{score}</span>
+            </span>
+          </div>
+        </>
+      }
+      footer={
+        <>
+          <Badge badgeContent={stargazers_count} color="secondary" max={10000}>
+            <StarIcon color="primary" />
+          </Badge>
+          <Badge badgeContent={watchers} color="secondary" max={10000}>
+            <VisibilityIcon color="primary" />
+          </Badge>
+          <Badge badgeContent={open_issues} color="error" max={10000}>
+            <ErrorIcon color="primary" />
+          </Badge>
+          <Badge badgeContent={forks} color="secondary" max={10000}>
+            <SvgIcon viewBox="0 0 34 34" color="primary">
+              <path
+                d="M27.131,8.383c0-2.092-1.701-3.794-3.794-3.794s-3.793,1.702-3.793,3.794c0,0.99,0.39,1.885,1.013,2.561
 		c-0.474,2.004-1.639,2.393-4.167,3.029c-1.279,0.322-2.753,0.7-4.099,1.501V7.003c1.072-0.671,1.793-1.854,1.793-3.209
 		C14.084,1.702,12.382,0,10.292,0C8.199,0,6.497,1.702,6.497,3.794c0,1.356,0.722,2.539,1.795,3.21v19.62
 		c-1.073,0.671-1.795,1.854-1.795,3.21c0,2.092,1.702,3.794,3.795,3.794c2.092,0,3.793-1.702,3.793-3.794
@@ -161,10 +149,11 @@ export default function Details({ repository, index }) {
 		c0-0.989,0.806-1.793,1.795-1.793c0.988,0,1.793,0.806,1.793,1.793C12.085,30.824,11.28,31.627,10.292,31.627z M23.337,10.177
 		c-0.989,0-1.793-0.805-1.793-1.793c0-0.989,0.806-1.794,1.793-1.794c0.988,0,1.794,0.805,1.794,1.794
 		C25.131,9.373,24.327,10.177,23.337,10.177z"
-            />
-          </SvgIcon>
-        </Badge>
-      </div>
-    </Card>
+              />
+            </SvgIcon>
+          </Badge>
+        </>
+      }
+    />
   );
 }
