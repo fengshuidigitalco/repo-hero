@@ -10,9 +10,10 @@ import {
 } from '@material-ui/core';
 import { red } from '@material-ui/core/colors';
 import cx from 'classnames';
-import { fetcher } from '../../api';
+import { fetchCreator } from '../../api';
 import { useDebounce } from '../../hooks';
 import { ASC, DESC } from '../../constants';
+import { determineErrorMessage } from '../../lib/utils';
 import { useSearchContext } from './SearchContext';
 
 const useStyles = makeStyles((theme) =>
@@ -60,23 +61,6 @@ const useStyles = makeStyles((theme) =>
   }),
 );
 
-const determineErrorMessage = (status) => {
-  switch (status) {
-    case 403: {
-      return 'Search request limit reached. Please try again in a bit';
-    }
-    case 422: {
-      return 'Incorrectly formatted query. This code is broken!';
-    }
-    case 503: {
-      return "Gitub's API is down. Please try again in a bit.";
-    }
-    default: {
-      return 'An error occurred. Please try again in a bit.';
-    }
-  }
-};
-
 export default function SearchBar({ id }) {
   const { setRepositories, updateSearch, search } = useSearchContext();
   const [error, setError] = useState('');
@@ -93,6 +77,9 @@ export default function SearchBar({ id }) {
   } = useStyles();
 
   const { language, term, sort, order } = search;
+
+  /** throttle the updating of these search values to prevent a 403 
+  unauthorized (throttling because not authenticated) error */
   const debouncedSearchTerm = useDebounce(term, 500);
   const debouncedLangauge = useDebounce(language, 500);
 
@@ -107,13 +94,17 @@ export default function SearchBar({ id }) {
       queryString = `${queryString}&sort=${sort}&order=${order}`;
 
       const url = `/search/repositories?q=${queryString}`;
-      const { error, items } = await fetcher({ url });
+      const { error, items } = await fetchCreator({ url });
 
       if (!!error) {
         const { status } = error;
         const determinedErrorMessage = determineErrorMessage(status);
+
+        /** if the api throws a 403 error, disable the inputs to account for API request throttling */
+        if (status === 403) {
+          setIsDisabled(true);
+        }
         setError(determinedErrorMessage);
-        setIsDisabled(true);
         return;
       }
 
@@ -123,12 +114,15 @@ export default function SearchBar({ id }) {
   );
 
   useEffect(() => {
+    /** if the api throws a 403 error, enable the inputs after 10 seconds */
     if (isDisabled) {
       setTimeout(() => setIsDisabled(false), 10000);
     }
   }, [isDisabled]);
 
   useEffect(() => {
+    /** if the user has typed anything in the search input and changes any input value
+     then make a GET request to the API */
     if (debouncedSearchTerm) {
       getRepositories(
         debouncedSearchTerm,
