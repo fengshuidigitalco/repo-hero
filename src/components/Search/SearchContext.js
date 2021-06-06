@@ -1,13 +1,20 @@
 import { useContext, createContext, useReducer, useMemo } from 'react';
+import { DESC, BEST_MATCH } from '../../constants';
 
 const SELECT_REPOSITORY = 'SELECT_REPOSITORY';
 const SET_REPOSITORIES = 'SET_REPOSITORIES';
-const SET_IS_LOADING = 'SET_IS_LOADING';
+const UPDATE_SEARCH = 'UPDATE_SEARCH';
 
 const initialContext = {
-  repositories: {},
-  selectedRepostory: '',
+  repositories: [],
+  selectedRepostory: null,
   isLoading: false,
+  search: {
+    term: '',
+    sort: BEST_MATCH,
+    order: DESC,
+    language: '',
+  },
 };
 
 export const SearchContext = createContext(initialContext);
@@ -21,24 +28,17 @@ function repositoryReducer(state, action) {
 
     case SET_REPOSITORIES: {
       const { repositories } = payload;
-      /** normalize the repositories so they're easier to access */
-      const repositoryMap = repositories.reduce((hash, repository) => {
-        const { id } = repository;
-        hash[id] = repository;
-        return hash;
-      }, {});
-
       const { selectedRepostory } = state;
       return {
         ...state,
         selectedRepostory,
-        repositories: repositoryMap,
+        repositories,
       };
     }
 
-    case SET_IS_LOADING:
-      const { isLoading } = payload;
-      return { ...state, isLoading };
+    case UPDATE_SEARCH:
+      const { search } = payload;
+      return { ...state, search };
 
     default: {
       return state;
@@ -62,11 +62,11 @@ export const SearchContextProvider = ({ children }) => {
       },
     });
 
-  const setIsLoading = (isLoading) =>
+  const updateSearch = (search) =>
     dispatch({
-      type: SET_IS_LOADING,
+      type: UPDATE_SEARCH,
       payload: {
-        isLoading,
+        search,
       },
     });
 
@@ -74,7 +74,7 @@ export const SearchContextProvider = ({ children }) => {
     ...initialContext,
     setRepositories,
     selectRepository,
-    setIsLoading,
+    updateSearch,
   });
 
   const store = useMemo(() => state, [state]);

@@ -17,18 +17,17 @@ const useStyles = makeStyles({
 });
 
 export default function Results() {
-  const { repositories, isLoading } = useSearchContext();
+  const { repositories } = useSearchContext();
 
   const { container } = useStyles();
 
   const mappedResults = useMemo(
     () =>
-      Object.values(repositories).map((repo, i) => (
+      repositories.map((repo, i) => (
         <Result repository={repo} key={`repo-${i}`} index={i} />
-      )),
+      )) || [],
     [repositories]
   );
 
-  const content = isLoading ? null : mappedResults;
-  return <div className={container}>{content}</div>;
+  return <div className={container}>{mappedResults}</div>;
 }

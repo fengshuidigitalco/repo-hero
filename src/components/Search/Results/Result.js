@@ -34,7 +34,7 @@ const useStyles = makeStyles((theme) =>
     content: {
       height: 110,
       overflow: 'hidden',
-      paddingBottom: '40px',
+      marginBottom: '40px',
       textOverflow: 'ellipsis',
     },
     formContainer: {
@@ -100,7 +100,7 @@ export default function Result({ repository, index }) {
   } = repository;
 
   const onClick = () => {
-    selectRepository(id);
+    selectRepository(repository);
     history.push(`/repository/${id}`);
   };
 
@@ -132,7 +132,7 @@ export default function Result({ repository, index }) {
         <Badge badgeContent={watchers} color="secondary" max={10000}>
           <VisibilityIcon color="primary" />
         </Badge>
-        <Badge badgeContent={open_issues} color="secondary" max={10000}>
+        <Badge badgeContent={open_issues} color="error" max={10000}>
           <ErrorIcon color="primary" />
         </Badge>
         <Badge badgeContent={forks} color="secondary" max={10000}>

@@ -19,14 +19,14 @@ const useStyles = makeStyles({
 
 export default function Search() {
   const { container, header } = useStyles();
-
+  const id = 'search';
   return (
     <div className={container}>
       <Typography variant="h3" component="h2" gutterBottom className={header}>
         Repo Hero
       </Typography>
-      <SearchBar />
-      <Results />
+      <SearchBar id={id} />
+      <Results id={id} />
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import {
+  createStyles,
   FormControl,
   InputLabel,
   makeStyles,
@@ -7,56 +8,146 @@ import {
   Select,
   TextField,
 } from '@material-ui/core';
+import { red } from '@material-ui/core/colors';
+import cx from 'classnames';
 import { fetcher } from '../../api';
 import { useDebounce } from '../../hooks';
+import { ASC, DESC } from '../../constants';
 import { useSearchContext } from './SearchContext';
 
-const useStyles = makeStyles({
-  formContainer: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexWrap: 'wrap',
-  },
-  header: {
-    marginTop: '1em',
-    textAlign: 'center',
-  },
-  search: {
-    width: '100%',
-  },
-});
+const useStyles = makeStyles((theme) =>
+  createStyles({
+    container: { width: '100%' },
+    row: {
+      ...theme.flexContainer.row,
+      flexWrap: 'wrap',
+      width: '100%',
+      justifyContent: 'space-between',
+    },
+    errorMessage: {
+      color: red[500],
+    },
+    formContainer: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      flexWrap: 'wrap',
+      margin: 'auto',
+      [theme.breakpoints.up('md')]: {
+        maxWidth: '80%',
+      },
+    },
+    header: {
+      marginTop: '1em',
+      textAlign: 'center',
+    },
+    input: {
+      width: '100%',
+    },
+    select: {
+      width: '100%',
+      [theme.breakpoints.up('smTab')]: {
+        maxWidth: '30%',
+      },
+    },
+    languageInput: {
+      [theme.breakpoints.up('smTab')]: {
+        maxWidth: '30%',
+      },
+    },
+    commonInput: {
+      marginBottom: '1em',
+    },
+  })
+);
 
-export default function SearchBar() {
-  const [searchString, setSearchString] = useState('');
-  const [sort, setSort] = useState('');
-  const [order, setOrder] = useState('');
+const determineErrorMessage = (status) => {
+  switch (status) {
+    case 403: {
+      return 'Search request limit reached. Please try again in a bit';
+    }
+    case 422: {
+      return 'Incorrectly formatted query. This code is broken!';
+    }
+    case 503: {
+      return "Gitub's API is down. Please try again in a bit.";
+    }
+    default: {
+      return 'An error occurred. Please try again in a bit.';
+    }
+  }
+};
 
-  const { setRepositories, setIsLoading } = useSearchContext();
-  const { formContainer, search } = useStyles();
-  const debouncedSearchTerm = useDebounce(searchString, 500);
+export default function SearchBar({ id }) {
+  const { setRepositories, updateSearch, search } = useSearchContext();
+  const [error, setError] = useState('');
+  const [isDisabled, setIsDisabled] = useState(false);
+  const {
+    commonInput,
+    container,
+    errorMessage,
+    languageInput,
+    formContainer,
+    input,
+    row,
+    select,
+  } = useStyles();
+
+  const { language, term, sort, order } = search;
+  const debouncedSearchTerm = useDebounce(term, 1000);
+  const debouncedLangauge = useDebounce(language, 1000);
 
   const getRepositories = useCallback(
-    async (searchTerm) => {
-      setIsLoading(true);
-      const queryString = `q=${searchTerm}&sort=${sort}&order=${order}`;
+    async (searchTerm, sort, order, language) => {
+      let queryString = `q=${searchTerm}`;
+
+      if (language) {
+        queryString = `${queryString}+language:${language}`;
+      }
+
+      queryString = `${queryString}&sort=${sort}&order=${order}`;
 
       const url = `/search/repositories?q=${queryString}`;
-      const res = await fetcher({ url });
+      const { error, items } = await fetcher({ url });
 
-      setRepositories(res.items);
-      setIsLoading(false);
+      if (!!error) {
+        const { status } = error;
+        const determinedErrorMessage = determineErrorMessage(status);
+        setError(determinedErrorMessage);
+        setIsDisabled(true);
+        return;
+      }
+
+      setRepositories(items);
     },
-    [order, sort, setRepositories, setIsLoading]
+    [setRepositories]
   );
 
   useEffect(() => {
-    getRepositories(debouncedSearchTerm);
-  }, [debouncedSearchTerm, getRepositories]);
+    if (isDisabled) {
+      setTimeout(() => setIsDisabled(false), 10000);
+    }
+  }, [isDisabled]);
+
+  useEffect(() => {
+    if (debouncedSearchTerm) {
+      getRepositories(
+        debouncedSearchTerm,
+        search.sort,
+        search.order,
+        debouncedLangauge
+      );
+    }
+  }, [
+    debouncedSearchTerm,
+    getRepositories,
+    search.sort,
+    search.order,
+    debouncedLangauge,
+  ]);
 
   const onSubmit = async (data) => {
     const { search, sort, order } = data;
-    setIsLoading(true);
 
     const queryString = `q=${search}&sort=${sort}&order=${order}`;
 
@@ -64,43 +155,64 @@ export default function SearchBar() {
     const res = await fetcher({ url });
 
     setRepositories(res.items);
-    setIsLoading(false);
   };
 
+  const searchBarId = `${id}-bar`;
+
   return (
-    <div>
+    <div className={container}>
       <form onSubmit={onSubmit} className={formContainer}>
-        <TextField
-          id="standard-basic"
-          label="Search Repositories"
-          className={search}
-          value={searchString}
-          onChange={(e) => setSearchString(e.target.value)}
-        />
-        <FormControl>
-          <InputLabel id="search-sort">Sort</InputLabel>
-          <Select value={sort} onChange={(e) => setSort(e.target.value)}>
-            <MenuItem value="best match">Best Match</MenuItem>
-            <MenuItem value="stars">Stars</MenuItem>
-          </Select>
-        </FormControl>
-
-        <FormControl>
-          <InputLabel id="search-sort-order">Sort Order</InputLabel>
-          <Select value={order} onChange={(e) => setOrder(e.target.value)}>
-            <MenuItem value="desc">Descending</MenuItem>
-            <MenuItem value="asc">Ascending</MenuItem>
-          </Select>
-        </FormControl>
-
-        {/* <Button
-          variant="contained"
-          color="primary"
-          type="submit"
-          disabled={isLoading}
-        >
-          Query
-        </Button> */}
+        <div className={row}>
+          <TextField
+            id={`${searchBarId}-term`}
+            label="Search Repositories"
+            className={cx(input, commonInput)}
+            value={term}
+            onChange={(e) => updateSearch({ ...search, term: e.target.value })}
+            disabled={isDisabled}
+          />
+          <div className={row}>
+            <FormControl className={cx(select, commonInput)}>
+              <InputLabel id="search-sort">Sort</InputLabel>
+              <Select
+                id={`${searchBarId}-sort`}
+                value={sort}
+                onChange={(e) =>
+                  updateSearch({ ...search, sort: e.target.value })
+                }
+                disabled={isDisabled}
+              >
+                <MenuItem value="best match">Best Match</MenuItem>
+                <MenuItem value="stars">Stars</MenuItem>
+              </Select>
+            </FormControl>
+            <FormControl className={cx(select, commonInput)}>
+              <InputLabel id="search-sort-order">Sort Order</InputLabel>
+              <Select
+                id={`${searchBarId}-sort-order`}
+                value={order}
+                onChange={(e) =>
+                  updateSearch({ ...search, order: e.target.value })
+                }
+                disabled={isDisabled}
+              >
+                <MenuItem value={DESC}>Descending</MenuItem>
+                <MenuItem value={ASC}>Ascending</MenuItem>
+              </Select>
+            </FormControl>
+            <TextField
+              id={`${searchBarId}-filter`}
+              label="Filter By Language"
+              className={cx(input, commonInput, languageInput)}
+              value={language}
+              onChange={(e) =>
+                updateSearch({ ...search, language: e.target.value })
+              }
+              disabled={isDisabled}
+            />
+          </div>
+        </div>
+        <span className={errorMessage}>{error}</span>
       </form>
     </div>
   );

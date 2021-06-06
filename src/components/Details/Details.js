@@ -41,8 +41,15 @@ const useStyles = makeStyles((theme) =>
       justifyContent: 'center',
     },
     header: {
-      marginTop: '1em',
+      fontSize: '20px',
+      margin: 'auto',
       textAlign: 'center',
+      [theme.breakpoints.up('sm')]: {
+        fontSize: '25px',
+      },
+      [theme.breakpoints.up('md')]: {
+        fontSize: '48px',
+      },
     },
     root: {
       cursor: 'pointer',
@@ -84,8 +91,20 @@ const determineColorNumber = (number) => {
 export default function Details({ repository, index }) {
   const props = { colorNumber: determineColorNumber(index) };
   const classes = useStyles(props);
-  const { selectedRepository, repositories } = useSearchContext();
-  const repo = repositories[selectedRepository];
+  const { selectedRepository } = useSearchContext();
+
+  if (!selectedRepository) {
+    return (
+      <Typography
+        variant="h3"
+        component="h2"
+        gutterBottom
+        className={classes.header}
+      >
+        Repository not found.{' '}
+      </Typography>
+    );
+  }
 
   const {
     name,
@@ -96,8 +115,8 @@ export default function Details({ repository, index }) {
     forks,
     git_url,
     open_issues,
-  } = repo;
-  console.log('**repo', repo);
+  } = selectedRepository;
+  console.log('**repo', selectedRepository);
   return (
     <Card className={classes.root} variant="outlined">
       <CardHeader
