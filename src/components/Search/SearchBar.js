@@ -40,10 +40,6 @@ const useStyles = makeStyles((theme) =>
         maxWidth: '80%',
       },
     },
-    header: {
-      marginTop: '1em',
-      textAlign: 'center',
-    },
     input: {
       width: '100%',
     },

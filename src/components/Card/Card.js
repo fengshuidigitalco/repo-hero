@@ -48,16 +48,6 @@ const useStyles = makeStyles((theme) =>
   }),
 );
 
-Card.propTypes = {
-  id: string.isRequired,
-  classOverrides: object,
-  title: string.isRequired,
-  content: node.isRequired,
-  footer: node,
-  color: number.isRequired,
-  subHeader: string,
-  contentClassName: string,
-};
 export function Card({
   id,
   classOverrides,
@@ -101,3 +91,14 @@ export function Card({
     </MUICard>
   );
 }
+
+Card.propTypes = {
+  id: string.isRequired,
+  classOverrides: object,
+  title: string.isRequired,
+  content: node.isRequired,
+  footer: node,
+  color: number.isRequired,
+  subHeader: string,
+  contentClassName: string,
+};
