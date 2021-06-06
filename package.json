@@ -54,16 +54,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged",
-      "pre-push": "yarn lint && yarn test"
+      "pre-push": "yarn test"
     }
-  },
-  "lint-staged": {
-    "src/**/*.{js,jsx,ts,tsx,scss,css}": [
-      "prettier --write"
-    ],
-    "*.md": [
-      "prettier --write"
-    ]
   }
 }
