@@ -1,4 +1,5 @@
 import React from 'react';
+import cx from 'classnames';
 import {
   Badge,
   createStyles,
@@ -20,6 +21,7 @@ const useStyles = makeStyles((theme) =>
       maxWidth: '90%',
       [theme.breakpoints.up('md')]: {
         margin: '2em auto',
+        maxWidth: '90%',
         width: '80%',
       },
       [theme.breakpoints.up('lg')]: {
@@ -60,12 +62,16 @@ const useStyles = makeStyles((theme) =>
         justifyContent: 'flex-start',
       },
     },
-  })
+    score: {
+      marginLeft: '1em',
+    },
+  }),
 );
 
 export default function Details({ repository, index }) {
   const classes = useStyles();
   const { selectedRepository } = useSearchContext();
+  const detailsId = 'details';
 
   if (!selectedRepository) {
     return (
@@ -74,7 +80,7 @@ export default function Details({ repository, index }) {
         component="h2"
         gutterBottom
         className={classes.header}
-      >
+        id={detailsId}>
         Repository not found.
       </Typography>
     );
@@ -96,6 +102,7 @@ export default function Details({ repository, index }) {
 
   return (
     <Card
+      id={detailsId}
       classOverrides={{ root: classes.cardClass }}
       title={name}
       color={500}
@@ -106,8 +113,7 @@ export default function Details({ repository, index }) {
           <Typography
             className={classes.description}
             color="textSecondary"
-            gutterBottom
-          >
+            gutterBottom>
             {description}
           </Typography>
           <a href={html_url} target="_blank" rel="noreferrer">
@@ -115,13 +121,21 @@ export default function Details({ repository, index }) {
           </a>
           <div className={classes.row}>
             {key && (
-              <span>
+              <Typography
+                className={classes.description}
+                color="textSecondary"
+                gutterBottom
+                variant="p">
                 License: <span>{key}</span>
-              </span>
+              </Typography>
             )}
-            <span>
+            <Typography
+              className={cx(classes.description, classes.score)}
+              color="textSecondary"
+              gutterBottom
+              variant="p">
               score: <span>{score}</span>
-            </span>
+            </Typography>
           </div>
         </>
       }

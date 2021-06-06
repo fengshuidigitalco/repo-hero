@@ -33,7 +33,7 @@ const useStyles = makeStyles((theme) =>
       overflow: 'hidden',
       textOverflow: 'ellipsis',
     },
-  })
+  }),
 );
 
 const determineColorNumber = (number) => {
@@ -62,8 +62,10 @@ export default function Result({ repository, index }) {
     history.push(`/repository/${id}`);
   };
 
+  const resultId = `result-${index}`;
   return (
     <Card
+      id={resultId}
       classOverrides={{ root: classes.root }}
       onClick={onClick}
       title={name}
@@ -73,8 +75,7 @@ export default function Result({ repository, index }) {
         <Typography
           className={classes.description}
           color="textSecondary"
-          gutterBottom
-        >
+          gutterBottom>
           {description}
         </Typography>
       }

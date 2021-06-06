@@ -61,7 +61,7 @@ const useStyles = makeStyles((theme) =>
     commonInput: {
       marginBottom: '1em',
     },
-  })
+  }),
 );
 
 const determineErrorMessage = (status) => {
@@ -123,7 +123,7 @@ export default function SearchBar({ id }) {
 
       setRepositories(items);
     },
-    [setRepositories]
+    [setRepositories],
   );
 
   useEffect(() => {
@@ -138,7 +138,7 @@ export default function SearchBar({ id }) {
         debouncedSearchTerm,
         search.sort,
         search.order,
-        debouncedLangauge
+        debouncedLangauge,
       );
     }
   }, [
@@ -149,22 +149,11 @@ export default function SearchBar({ id }) {
     debouncedLangauge,
   ]);
 
-  const onSubmit = async (data) => {
-    const { search, sort, order } = data;
-
-    const queryString = `q=${search}&sort=${sort}&order=${order}`;
-
-    const url = `/search/repositories?q=${queryString}`;
-    const res = await fetcher({ url });
-
-    setRepositories(res.items);
-  };
-
   const searchBarId = `${id}-bar`;
 
   return (
     <div className={container}>
-      <form onSubmit={onSubmit} className={formContainer}>
+      <div className={formContainer}>
         <div className={row}>
           <TextField
             id={`${searchBarId}-term`}
@@ -183,8 +172,7 @@ export default function SearchBar({ id }) {
                 onChange={(e) =>
                   updateSearch({ ...search, sort: e.target.value })
                 }
-                disabled={isDisabled}
-              >
+                disabled={isDisabled}>
                 <MenuItem value="best match">Best Match</MenuItem>
                 <MenuItem value="stars">Stars</MenuItem>
               </Select>
@@ -197,8 +185,7 @@ export default function SearchBar({ id }) {
                 onChange={(e) =>
                   updateSearch({ ...search, order: e.target.value })
                 }
-                disabled={isDisabled}
-              >
+                disabled={isDisabled}>
                 <MenuItem value={DESC}>Descending</MenuItem>
                 <MenuItem value={ASC}>Ascending</MenuItem>
               </Select>
@@ -215,8 +202,8 @@ export default function SearchBar({ id }) {
             />
           </div>
         </div>
-        <span className={errorMessage}>{error}</span>
-      </form>
+        {error && <span className={errorMessage}>{error}</span>}
+      </div>
     </div>
   );
 }

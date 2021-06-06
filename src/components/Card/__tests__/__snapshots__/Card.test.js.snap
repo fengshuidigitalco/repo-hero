@@ -1,0 +1,37 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`card renders 1`] = `
+<div
+  class="MuiPaper-root MuiCard-root makeStyles-root-5 MuiPaper-outlined MuiPaper-rounded"
+  id="test-card"
+>
+  <div
+    class="MuiCardHeader-root"
+  >
+    <div
+      class="MuiCardHeader-avatar"
+    >
+      <div
+        aria-label="title"
+        class="MuiAvatar-root MuiAvatar-circle makeStyles-avatar-1 makeStyles-avatar-6 MuiAvatar-colorDefault"
+      >
+        T
+      </div>
+    </div>
+    <div
+      class="MuiCardHeader-content"
+    >
+      <span
+        class="MuiTypography-root MuiCardHeader-title makeStyles-cardHeader-3 MuiTypography-body2 MuiTypography-displayBlock"
+      >
+        Test Card
+      </span>
+    </div>
+  </div>
+  <div
+    class="MuiCardContent-root makeStyles-content-4"
+  >
+    Card Content
+  </div>
+</div>
+`;

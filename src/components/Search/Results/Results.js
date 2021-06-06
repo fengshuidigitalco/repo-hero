@@ -16,17 +16,16 @@ const useStyles = makeStyles({
   },
 });
 
-export default function Results() {
+export default function Results({ id }) {
   const { repositories } = useSearchContext();
-
   const { container } = useStyles();
 
   const mappedResults = useMemo(
     () =>
       repositories.map((repo, i) => (
-        <Result repository={repo} key={`repo-${i}`} index={i} />
+        <Result repository={repo} key={`repo-${i}`} index={i} id={id} />
       )) || [],
-    [repositories]
+    [repositories, id],
   );
 
   return <div className={container}>{mappedResults}</div>;

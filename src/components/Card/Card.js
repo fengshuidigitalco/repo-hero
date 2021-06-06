@@ -9,6 +9,7 @@ import {
 } from '@material-ui/core';
 import { blue } from '@material-ui/core/colors';
 import cx from 'classnames';
+import { node, number, object, string } from 'prop-types';
 
 const useStyles = makeStyles((theme) =>
   createStyles({
@@ -44,10 +45,21 @@ const useStyles = makeStyles((theme) =>
         maxWidth: 300,
       },
     },
-  })
+  }),
 );
 
+Card.propTypes = {
+  id: string.isRequired,
+  classOverrides: object,
+  title: string.isRequired,
+  content: node.isRequired,
+  footer: node,
+  color: number.isRequired,
+  subHeader: string,
+  contentClassName: string,
+};
 export function Card({
+  id,
   classOverrides,
   title,
   content,
@@ -59,14 +71,15 @@ export function Card({
 }) {
   const props = { colorNumber: color };
   const classes = useStyles(props);
+  const cardId = `${id}-card`;
 
   return (
     <MUICard
+      id={cardId}
       className={classes.root}
       classes={classOverrides}
       variant="outlined"
-      {...rest}
-    >
+      {...rest}>
       <CardHeader
         avatar={
           <Avatar aria-label="title" className={classes.avatar}>
@@ -80,7 +93,11 @@ export function Card({
       <CardContent className={cx(classes.content, contentClassName)}>
         {content}
       </CardContent>
-      <div className={classes.footer}>{footer}</div>
+      {footer && (
+        <div className={classes.footer} id={`${cardId}-footer`}>
+          {footer}
+        </div>
+      )}
     </MUICard>
   );
 }
