@@ -1,5 +1,15 @@
 ## Available Scripts
 
+# Install Dependencies
+
+If yarn is not installed globally, run:
+
+### `npm install --global yarn` | `brew install yarn`
+
+Then, to install local dependencies, run:
+
+### `yarn`
+
 In the project directory, you can run:
 
 ### `yarn start`

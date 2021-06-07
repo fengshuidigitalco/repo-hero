@@ -68,7 +68,7 @@ const useStyles = makeStyles((theme) =>
   }),
 );
 
-export default function Details({ repository, index }) {
+export default function Details() {
   const classes = useStyles();
   const { selectedRepository } = useSearchContext();
   const detailsId = 'details';
@@ -97,7 +97,9 @@ export default function Details({ repository, index }) {
     open_issues,
     score,
     license,
+    owner,
   } = selectedRepository;
+  const { login } = owner;
   const key = license?.key || null;
 
   return (
@@ -125,7 +127,7 @@ export default function Details({ repository, index }) {
                 className={classes.description}
                 color="textSecondary"
                 gutterBottom
-                variant="p">
+                variant="h5">
                 License: <span>{key}</span>
               </Typography>
             )}
@@ -133,9 +135,21 @@ export default function Details({ repository, index }) {
               className={cx(classes.description, classes.score)}
               color="textSecondary"
               gutterBottom
-              variant="p">
+              variant="h5">
               score: <span>{score}</span>
             </Typography>
+            {owner && (
+              <Typography
+                className={cx(classes.description, classes.score)}
+                color="textSecondary"
+                gutterBottom
+                variant="h5">
+                Owner:{' '}
+                <a href={owner.html_url} target="_blank" rel="noreferrer">
+                  <span>{login}</span>{' '}
+                </a>
+              </Typography>
+            )}
           </div>
         </>
       }
