@@ -87,6 +87,7 @@ export default function SearchBar({ id }) {
     async (searchTerm, sort, order, language) => {
       let queryString = `q=${searchTerm}`;
 
+      /** if a filter language has been typed, include it as a query param */
       if (language) {
         queryString = `${queryString}+language:${language}`;
       }
@@ -98,13 +99,12 @@ export default function SearchBar({ id }) {
 
       if (!!error) {
         const { status } = error;
-        const determinedErrorMessage = determineErrorMessage(status);
 
         /** if the api throws a 403 error, disable the inputs to account for API request throttling */
         if (status === 403) {
           setIsDisabled(true);
         }
-        setError(determinedErrorMessage);
+        setError(determineErrorMessage(status));
         return;
       }
 
